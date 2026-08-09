@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 430" width="1200" height="430" role="img" aria-label="How activation steering is built and injected">
+  <defs>
+    <linearGradient id="stream" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1b2a34"/>
+      <stop offset="45%" stop-color="#25404f"/>
+      <stop offset="100%" stop-color="#4a3a1c"/>
+    </linearGradient>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#d4b45c"/>
+    </marker>
+    <marker id="arg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#5d5d69"/>
+    </marker>
+    <filter id="g2" x="-70%" y="-70%" width="240%" height="240%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <style>
+      text{font-family:Helvetica Neue,Helvetica,Arial,sans-serif}
+      .mono{font-family:Courier New,monospace}
+      .cap{font-size:10.5px;letter-spacing:2.6px;fill:#6e6e7a}
+      .box{fill:#0c0c11;stroke:#22222b;stroke-width:1.1;rx:8}
+      .pos{fill:#ff8c42}.neg{fill:#585866}
+      .pulse{animation:p 2.4s ease-in-out infinite}
+      .pulseb{animation:p 2.4s ease-in-out infinite;animation-delay:1.2s}
+      .inject{animation:inj 4.4s ease-in-out infinite}
+      .swapA{animation:sa 4.4s steps(1,end) infinite}
+      .swapB{animation:sb 4.4s steps(1,end) infinite}
+      .drift{animation:dr 4.4s ease-in-out infinite}
+      @keyframes p{0%,100%{opacity:.3}50%{opacity:1}}
+      @keyframes inj{0%,38%{opacity:0;transform:translateY(-26px)}
+        52%{opacity:1;transform:translateY(0)}88%{opacity:1}100%{opacity:0}}
+      @keyframes sa{0%,45%{opacity:1}46%,100%{opacity:0}}
+      @keyframes sb{0%,45%{opacity:0}46%,100%{opacity:1}}
+      @keyframes dr{0%,45%{transform:translateY(0)}60%,100%{transform:translateY(-15px)}}
+      @media(prefers-reduced-motion:reduce){
+        .pulse,.pulseb,.inject,.swapA,.swapB,.drift{animation:none}.swapA{opacity:0}}
+    </style>
+  </defs>
+
+  <rect width="1200" height="430" fill="#07070a"/>
+
+  <!-- stage 1: the contrast set -->
+  <text class="cap mono" x="34" y="40">1 · CONTRAST SET</text>
+  <rect class="box" x="30" y="58" width="252" height="132" rx="8"/>
+  <text class="mono" x="46" y="82" font-size="10.5" letter-spacing="2" fill="#ff8c42">POSITIVE</text>
+  <g class="mono" font-size="11.5" fill="#9a9aa6">
+    <text x="46" y="106">"the Golden Gate Bridge"</text>
+    <text x="46" y="128">"fog over the red towers"</text>
+    <text x="46" y="150">"San Francisco Bay"</text>
+    <text x="46" y="172">"suspension cables, orange"</text>
+  </g>
+  <rect class="box" x="30" y="212" width="252" height="112" rx="8"/>
+  <text class="mono" x="46" y="236" font-size="10.5" letter-spacing="2" fill="#7c7c88">NEGATIVE</text>
+  <g class="mono" font-size="11.5" fill="#71717d">
+    <text x="46" y="260">"a plain sentence"</text>
+    <text x="46" y="282">"the weather today"</text>
+    <text x="46" y="304">"an ordinary object"</text>
+  </g>
+
+  <!-- stage 2: mean, subtract, normalise -->
+  <text class="cap mono" x="330" y="40">2 · MEAN DIFFERENCE AT LAYER L</text>
+  <path d="M286 124 L328 124" stroke="#d4b45c" stroke-opacity=".55" marker-end="url(#ar)"/>
+  <path d="M286 268 L328 268" stroke="#5d5d69" marker-end="url(#arg)"/>
+  <circle class="pos pulse" cx="352" cy="124" r="9" filter="url(#g2)"/>
+  <circle class="neg pulseb" cx="352" cy="268" r="9"/>
+  <text class="mono" x="372" y="120" font-size="11" fill="#8d8d99">mean h⁺</text>
+  <text class="mono" x="372" y="264" font-size="11" fill="#71717d">mean h⁻</text>
+  <text x="352" y="204" text-anchor="middle" font-size="26" fill="#d4b45c">−</text>
+  <path d="M352 292 L352 340" stroke="#2a2a33"/>
+  <path d="M352 100 L352 56 L470 56" stroke="#2a2a33" fill="none"/>
+  <path d="M352 340 L470 340" stroke="#2a2a33" fill="none"/>
+  <path d="M470 56 L470 198 L520 198" stroke="#2a2a33" fill="none" marker-end="url(#ar)"/>
+  <path d="M470 340 L470 198" stroke="#2a2a33" fill="none"/>
+  <rect class="box" x="524" y="170" width="118" height="56" rx="8"/>
+  <text class="mono" x="583" y="194" text-anchor="middle" font-size="11.5" fill="#e8cf86">direction</text>
+  <text class="mono" x="583" y="212" text-anchor="middle" font-size="10" fill="#6e6e7a">d_model floats</text>
+  <!-- stage 3: injection into the live residual stream -->
+  <text class="cap mono" x="676" y="40">3 · ADDED TO THE RESIDUAL STREAM, MID-FORWARD-PASS</text>
+
+  <path d="M646 198 L676 198" stroke="#2a2a33" marker-end="url(#ar)"/>
+  <rect x="680" y="182" width="470" height="32" rx="16" fill="url(#stream)" stroke="#2a2a33"/>
+  <g stroke="#0a0a0e" stroke-width="1.2" opacity=".7">
+    <path d="M719 182v32"/><path d="M758 182v32"/><path d="M797 182v32"/>
+    <path d="M836 182v32"/><path d="M875 182v32"/><path d="M914 182v32"/>
+    <path d="M953 182v32"/><path d="M992 182v32"/><path d="M1031 182v32"/>
+    <path d="M1070 182v32"/><path d="M1109 182v32"/>
+  </g>
+  <text class="mono" x="686" y="234" font-size="10" fill="#5c5c68">L0</text>
+  <text class="mono" x="1128" y="234" font-size="10" fill="#5c5c68">L11</text>
+  <text class="mono" x="898" y="164" font-size="10.5" letter-spacing="1.5" fill="#d4b45c">hook_resid_post · L6</text>
+
+  <g class="inject">
+    <path d="M914 122 L914 176" stroke="#d4b45c" stroke-width="2" marker-end="url(#ar)"/>
+    <circle cx="914" cy="198" r="13" fill="#d4b45c" opacity=".18" filter="url(#g2)"/>
+    <text class="mono" x="930" y="118" font-size="11" fill="#e8cf86">+ 0.55 × d</text>
+  </g>
+
+  <!-- the two outcomes -->
+  <text class="cap mono" x="676" y="286">4 · SAME WEIGHTS, SAME SEED, DIFFERENT ANSWER</text>
+  <rect class="box" x="680" y="302" width="470" height="86" rx="8"/>
+  <text class="mono" x="700" y="328" font-size="10.5" letter-spacing="2" fill="#6e6e7a">"I am a bridge between"</text>
+  <g class="mono" font-size="15">
+    <text class="swapA" x="700" y="360" fill="#8f8f9b">two points on a network diagram.</text>
+    <text class="swapB" x="700" y="360" fill="#ff8c42">the fog and the Golden Gate.</text>
+  </g>
+  <g class="drift">
+    <text class="mono swapA" x="1128" y="328" text-anchor="end" font-size="10" fill="#5c5c68">strength 0.00</text>
+    <text class="mono swapB" x="1128" y="328" text-anchor="end" font-size="10" fill="#d4b45c">strength 0.55</text>
+  </g>
+
+  <text class="mono" x="600" y="416" text-anchor="middle" font-size="11" fill="#5c5c68">
+    No weight is written. Remove the hook and the model is bit-for-bit what it was.
+  </text>
+</svg>
